@@ -1,0 +1,13 @@
+{
+    "name": "zaxcms/ui",
+    "require": {
+        "nette/application": ">=2.2.0"
+    },
+    "require-dev": {
+        "nette/tester": "~1.3",
+        "nette/nette": "~2.2"
+    },
+    "autoload": {
+        "classmap": ["src/"]
+    }
+}

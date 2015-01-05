@@ -1,0 +1,7 @@
+nette:
+    application:
+        mapping:
+            *: Zax\Tests\*Presenter
+
+services:
+    - Zax\Tests\ITestControlFactory

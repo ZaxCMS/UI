@@ -84,7 +84,7 @@ simple workaround is to create the component manually in action, like this:
 public function actionDefault() {
 	$this->createComponent('someControl');
 	// or shorter
-	$this['someControl];
+	$this['someControl'];
 }
 ```
 

@@ -5,9 +5,6 @@ namespace Zax\Application\UI;
 use Nette;
 use Zax\Latte\AjaxMacro;
 
-/**
- * Class Control
- */
 abstract class Control extends Nette\Application\UI\Control implements IAjaxAware {
 
 	/** @persistent */
@@ -64,6 +61,9 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 		return $this;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function isAjaxEnabled() {
 		return $this->ajaxEnabled;
 	}
@@ -86,18 +86,23 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 	/**
 	 * Forward using $presenter->forward() (doesn't work well with redrawControl)
 	 *
-	 * @param       $destination
+	 * @param string $destination
 	 * @param array $args
 	 */
 	public function presenterForward($destination, $args = []) {
+
+		// Get full path
 		$name = $this->getUniqueId();
-		if($destination != 'this') {
-			$destination =  "$name-$destination";
+		if($destination !== 'this') {
+			$destination = "$name-$destination";
 		}
+
+		// Prepend full path to param keys
 		$params = [];
 		foreach($args as $key => $val) {
 			$params["$name-$key"] = $val;
 		}
+
 		$this->presenter->forward($destination, $params);
 	}
 
@@ -113,9 +118,9 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 	}
 
 	/**
-	 * Custom "hacky" forward
+	 * Custom "hacky" forward (works well with redrawControl)
 	 *
-	 * @param       $destination
+	 * @param string $destination
 	 * @param array $args
 	 */
 	public function forward($destination, $args = []) {
@@ -123,7 +128,7 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 		// Remove '!' from destination
 		$destination = str_replace('!', '', $destination);
 
-		// Remove anchor from destination and insert anchor to payload
+		// Remove anchor from destination
 		$anchor = strpos($destination, '#');
 		if(is_int($anchor)) {
 			list($destination, $anchor) = explode('#', $destination);
@@ -167,7 +172,7 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 	 * @param string $destination
 	 * @param array $args
 	 * @param array $snippets
-	 * @param bool  $presenterForward Prefer $presenter->forward() over $this->forward()
+	 * @param bool $presenterForward Prefer $presenter->forward() over $this->forward()
 	 */
 	final public function go($destination, $args = [], $snippets = [], $presenterForward = FALSE) {
 		if($this->ajaxEnabled && $this->presenter->isAjax()) {
@@ -186,7 +191,7 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 	}
 
 	/**
-	 * @param $view
+	 * @param string $view
 	 * @return string
 	 */
 	static public function formatViewMethod($view) {
@@ -194,7 +199,7 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 	}
 
 	/**
-	 * @param $render
+	 * @param string $render
 	 * @return string
 	 */
 	static public function formatBeforeRenderMethod($render) {
@@ -202,7 +207,7 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 	}
 
 	/**
-	 * @param $view
+	 * @param string $view
 	 */
 	public function setView($view) {
 		$this->view = Nette\Utils\Strings::firstUpper($view);
@@ -211,7 +216,7 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 	/**
 	 * Throws exception if view name contains anything else than alphanumeric characters.
 	 *
-	 * @param $view
+	 * @param string $view
 	 * @throws Nette\Application\UI\BadSignalException
 	 */
 	protected function checkView($view) {
@@ -222,6 +227,7 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 
 	/**
 	 * Automatic snippet invalidation
+	 * Do not call manually
 	 */
 	public function attached($presenter) {
 		parent::attached($presenter);
@@ -284,7 +290,9 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 	public function createTemplate() {
 		$this->checkView($this->view);
 		$template = parent::createTemplate();
-		(new AjaxMacro)->install($template->getLatte());
+		if(class_exists('Latte\Engine')) {
+			(new AjaxMacro)->install($template->getLatte());
+		}
 		return $template;
 	}
 
@@ -322,12 +330,14 @@ abstract class Control extends Nette\Application\UI\Control implements IAjaxAwar
 		$template = $this->getTemplate();
 		$template->setFile($this->getTemplatePath($this->view, $render));
 
-		if(!$this->tryCall($this->formatViewMethod($this->view), $this->params)) {
+		// view
+		if(!$this->tryCall(self::formatViewMethod($this->view), $this->params)) {
 			$class = get_class($this);
 			throw new Nette\Application\UI\BadSignalException("There is no handler for view '$this->view' in class $class.");
 		}
 
-		if(!$this->tryCall($this->formatBeforeRenderMethod($render), $renderParams)) {
+		// beforeRender
+		if(!$this->tryCall(self::formatBeforeRenderMethod($render), $renderParams)) {
 			$class = get_class($this);
 			throw new Nette\Application\UI\BadSignalException("There is no 'beforeRender$render' method in class $class.");
 		}

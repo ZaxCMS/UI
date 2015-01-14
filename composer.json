@@ -9,7 +9,7 @@
     },
     "suggest": {
         "latte/latte": "Powerful templating engine"
-    }
+    },
     "require-dev": {
         "nette/tester": "~1.3",
         "nette/nette": "~2.2"

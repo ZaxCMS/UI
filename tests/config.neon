@@ -3,5 +3,8 @@ nette:
         mapping:
             *: Zax\Tests\*Presenter
 
+extensions:
+    ajax: Zax\DI\AjaxExtension
+
 services:
     - Zax\Tests\ITestControlFactory

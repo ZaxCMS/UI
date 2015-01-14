@@ -106,7 +106,14 @@ The other method looks a little bit more elegant in templates:
 ```
 
 This n:macro does the very same check on your component, but instead of adding a class, it adds `data-zax-ajax`
-attribute. To make it work, we need to add this piece of code to our js before calling `$.nette.init()`:
+attribute. To make it work, we need to register an extension in config
+
+```
+extensions:
+	ajax: Zax\DI\AjaxExtension
+```
+
+and we need to add this piece of code to our js before calling `$.nette.init()`:
 
 ```js
 $.nette.ext('init').linkSelector = 'a[data-zax-ajax]';

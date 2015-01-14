@@ -98,19 +98,6 @@ trait TControlAjax {
 	}
 
 	/**
-	 * Template factory
-	 *
-	 * @return Nette\Application\UI\ITemplate
-	 */
-	public function createTemplate() {
-		$template = parent::createTemplate();
-		if(class_exists('Latte\Engine')) {
-			(new AjaxMacro)->install($template->getLatte());
-		}
-		return $template;
-	}
-
-	/**
 	 * If AJAX, then forward, else redirect.
 	 *
 	 * @param string $destination

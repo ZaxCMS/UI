@@ -75,7 +75,7 @@ trait TControlLifeCycle {
 				$tmp = $args;
 			}
 
-			// Capitalize and validate view
+			// Capitalize and validate view syntax
 			$this->view = Nette\Utils\Strings::firstUpper($this->view);
 			$this->checkView();
 

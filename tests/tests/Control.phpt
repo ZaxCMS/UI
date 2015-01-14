@@ -34,24 +34,22 @@ class ControlTest extends Tester\TestCase {
 	}
 
 	public function testViewNotExist() {
-		$this->control->setView('abc');
-		Assert::exception(function() {$this->control->render();}, 'Nette\Application\UI\BadSignalException');
+		$this->control->view = 'abc';
+		Assert::exception(function() {$this->control->render();}, 'Zax\Application\UI\InvalidViewException');
+	}
+
+	public function testInvalidViewName() {
+		$this->control->view = 'abc.';
+		Assert::exception(function() {$this->control->render();}, 'Zax\Application\UI\InvalidViewNameException');
 	}
 
 	public function testBeforeRenderNotExist() {
-		$this->control->setView('foo');
-		Assert::exception(function() {$this->control->renderBad();}, 'Nette\Application\UI\BadSignalException');
-	}
-
-	public function testTemplatePath() {
-		$path1 = $this->control->getTemplatePath('Foo');
-		Assert::same($this->tp('Foo'), $path1);
-		$path2 = $this->control->getTemplatePath('Foo', 'Bar');
-		Assert::same($this->tp('Foo.Bar'), $path2);
+		$this->control->view = 'foo';
+		Assert::exception(function() {$this->control->renderBad();}, 'Zax\Application\UI\InvalidRenderException');
 	}
 
 	public function testTemplateRender() {
-		$this->control->setView('Default');
+		$this->control->view = 'Default';
 
 		ob_start();
 		$this->control->render();
@@ -61,7 +59,7 @@ class ControlTest extends Tester\TestCase {
 		$this->control->renderBar();
 		Assert::same('default bar', ob_get_clean());
 
-		$this->control->setView('Foo');
+		$this->control->view = 'Foo';
 
 		ob_start();
 		$this->control->render();
@@ -105,7 +103,7 @@ class ControlTest extends Tester\TestCase {
 	}
 
 	public function testLatteAjaxMacro() {
-		$this->control->setView('Link');
+		$this->control->view = 'Link';
 
 		ob_start();
 		$this->control->render();

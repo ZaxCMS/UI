@@ -79,7 +79,7 @@ trait TControlLifeCycle {
 			$this->view = Nette\Utils\Strings::firstUpper($this->view);
 			$this->checkView();
 
-			// Validate view and render methods
+			// Call view and render methods
 			$render = Nette\Utils\Strings::substring($func, 6);
 			$this->callViewRender($render, $tmp);
 
